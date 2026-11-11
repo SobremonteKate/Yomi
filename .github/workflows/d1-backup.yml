@@ -1,0 +1,68 @@
+name: Encrypted D1 backup
+
+# Fetches the Worker export on a schedule and uploads an ENCRYPTED copy as a
+# workflow artifact. Do not commit exports to a public repository: they contain
+# titles, URLs, notes and reading history.
+#
+# Repository secrets:
+#   YOMI_ENDPOINT       https://<worker>.<you>.workers.dev/api
+#   YOMI_TOKEN          the Worker's SYNC_TOKEN
+#   BACKUP_PASSPHRASE  a long, unique passphrase for the encrypted artifact
+#
+# Artifacts from a public repository are publicly downloadable, so the
+# passphrase is what protects the backup. Keep it in a password manager.
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch export
+        env:
+          YOMI_ENDPOINT: ${{ secrets.YOMI_ENDPOINT }}
+          YOMI_TOKEN: ${{ secrets.YOMI_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${YOMI_ENDPOINT:-}" ] || [ -z "${YOMI_TOKEN:-}" ]; then
+            echo "YOMI_ENDPOINT and YOMI_TOKEN secrets are required." >&2
+            exit 1
+          fi
+          mkdir -p "${RUNNER_TEMP}/yomi-backup"
+          stamp="$(date -u +%F)"
+          curl --fail --silent --show-error \
+            --header "Authorization: Bearer ${YOMI_TOKEN}" \
+            "${YOMI_ENDPOINT%/}/export" \
+            --output "${RUNNER_TEMP}/yomi-backup/yomi-${stamp}.json"
+          # A malformed export must fail the job rather than be uploaded.
+          node -e "const d=JSON.parse(require('node:fs').readFileSync('${RUNNER_TEMP}/yomi-backup/yomi-${stamp}.json','utf8')); if(!d.ok||!Array.isArray(d.series)) process.exit(1); console.log(d.series.length+' series, '+d.events.length+' chapters');"
+
+      - name: Encrypt export
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BACKUP_PASSPHRASE:-}" ]; then
+            echo "BACKUP_PASSPHRASE is required; refusing to upload a private export unencrypted." >&2
+            exit 1
+          fi
+          file="$(find "${RUNNER_TEMP}/yomi-backup" -name '*.json' -print -quit)"
+          gpg --symmetric --cipher-algo AES256 --batch --yes \
+            --passphrase "${BACKUP_PASSPHRASE}" \
+            --output "${file}.gpg" "${file}"
+          rm "${file}"
+
+      - name: Upload encrypted backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: yomi-encrypted-export-${{ github.run_id }}
+          path: ${{ runner.temp }}/yomi-backup/*.gpg
+          retention-days: 30

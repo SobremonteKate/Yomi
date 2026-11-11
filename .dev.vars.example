@@ -1,0 +1,16 @@
+# Copy to .dev.vars for local `wrangler dev`. Never commit the real value.
+
+# The original single-owner token. It still works and maps to the built-in
+# "legacy" account, which owns every row written before accounts existed.
+SYNC_TOKEN=replace-with-a-long-random-token
+
+# Optional display name for that legacy account.
+# OWNER_NAME=your name
+
+# Optional: require this code when creating an account. Leave unset for open
+# signup, which is what a brand-new deployment needs.
+# SIGNUP_CODE=replace-with-an-invite-code
+
+# Optional: lock CORS to your app origin instead of "*". Leave empty while the
+# userscript or the iPhone Shortcut is in use, since neither sends an Origin.
+# ALLOWED_ORIGIN=https://yomi.example.workers.dev

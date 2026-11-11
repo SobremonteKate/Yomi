@@ -1,0 +1,765 @@
+/* ---------------------------------------------------------------------------
+   Yomi design tokens
+   Ink + copy paper + one riso red. Rectangular panels, ledger rules, screentone.
+--------------------------------------------------------------------------- */
+
+:root {
+	--paper: #ededE4;
+	--paper-2: #e3e3d7;
+	--paper-3: #d6d6c6;
+	--ink: #141411;
+	--ink-2: #56574c;
+	--ink-3: #838478;
+	--rule: #c3c3b1;
+	--rule-strong: #141411;
+	--red: #ee3b1f;
+	--red-deep: #cb2a10;
+	--on-signal: #fff7ec;
+	--shadow: 6px 6px 0 rgba(20, 20, 17, 0.12);
+
+	--sans: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Segoe UI',
+		sans-serif;
+	--display: 'Dela Gothic One', 'Arial Black', sans-serif;
+	--mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+	--jp: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+
+	--page: 1180px;
+	--gutter: clamp(16px, 4vw, 40px);
+	--radius: 0;
+	--line: 1.5px;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--paper: #121310;
+		--paper-2: #1b1c17;
+		--paper-3: #26271f;
+		--ink: #eeeeE1;
+		--ink-2: #a7a897;
+		--ink-3: #7d7e70;
+		--rule: #37382f;
+		--rule-strong: #eeeeE1;
+		--red: #ff5232;
+		--red-deep: #ff7259;
+		--on-signal: #17130f;
+		--shadow: 6px 6px 0 rgba(0, 0, 0, 0.4);
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	background: var(--paper);
+	color-scheme: light dark;
+	-webkit-text-size-adjust: 100%;
+	scroll-behavior: smooth;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--sans);
+	font-size: 15px;
+	line-height: 1.55;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+body.is-locked {
+	overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+	margin: 0;
+}
+
+ul,
+ol {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+	color: inherit;
+}
+
+button {
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+img {
+	display: block;
+	max-width: 100%;
+}
+
+::selection {
+	background: var(--ink);
+	color: var(--paper);
+}
+
+:focus-visible {
+	outline: 2px solid var(--red);
+	outline-offset: 2px;
+}
+
+/* Thin, inky scrollbars where supported. */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--ink-3) transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Layout primitives
+--------------------------------------------------------------------------- */
+
+.shell {
+	width: min(100%, var(--page));
+	margin: 0 auto;
+	padding-inline: var(--gutter);
+}
+
+.masthead {
+	position: sticky;
+	top: 0;
+	z-index: 20;
+	background: var(--paper);
+	border-bottom: var(--line) solid var(--ink);
+}
+
+.masthead__inner {
+	width: min(100%, var(--page));
+	margin: 0 auto;
+	padding: 14px var(--gutter);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+}
+
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+}
+
+.brand__word {
+	font-family: var(--display);
+	font-size: clamp(18px, 2.2vw, 24px);
+	line-height: 1;
+	letter-spacing: 0.015em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.brand__sub {
+	display: block;
+	margin-top: 5px;
+	font-family: var(--mono);
+	font-size: 9px;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: var(--ink-2);
+}
+
+.hanko {
+	display: grid;
+	place-items: center;
+	width: 31px;
+	height: 31px;
+	flex: 0 0 auto;
+	background: var(--red);
+	color: var(--on-signal);
+	font-family: var(--jp);
+	font-size: 19px;
+	font-weight: 700;
+	line-height: 1;
+	transform: rotate(-2.5deg);
+	box-shadow: 2px 2px 0 var(--ink);
+	user-select: none;
+}
+
+.mono {
+	font-family: var(--mono);
+	font-variant-numeric: tabular-nums;
+}
+
+.display {
+	font-family: var(--display);
+	font-weight: 400;
+	line-height: 0.95;
+	letter-spacing: -0.015em;
+}
+
+.eyebrow {
+	font-family: var(--mono);
+	font-size: 10px;
+	font-weight: 500;
+	line-height: 1.4;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--ink-2);
+}
+
+.eyebrow--ink {
+	color: var(--ink);
+}
+
+.rule {
+	border: 0;
+	border-top: var(--line) solid var(--ink);
+}
+
+.rule--soft {
+	border-top-color: var(--rule);
+}
+
+.rule--red {
+	border-top: 2px solid var(--red);
+}
+
+.surface {
+	background: var(--paper);
+	border: var(--line) solid var(--ink);
+}
+
+.plate {
+	background: var(--ink);
+	color: var(--paper);
+}
+
+.screentone {
+	background-image: radial-gradient(var(--ink) 0.7px, transparent 0.8px);
+	background-size: 4px 4px;
+}
+
+.tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	min-height: 20px;
+	padding: 2px 6px;
+	border: 1px solid var(--rule);
+	font-family: var(--mono);
+	font-size: 9px;
+	line-height: 1.2;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--ink-2);
+}
+
+.tag--ink {
+	border-color: var(--ink);
+	color: var(--ink);
+}
+
+.tag--red {
+	border-color: var(--red);
+	color: var(--red);
+}
+
+.tag--solid {
+	background: var(--ink);
+	border-color: var(--ink);
+	color: var(--paper);
+}
+
+/* ---------------------------------------------------------------------------
+   Controls
+--------------------------------------------------------------------------- */
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 40px;
+	padding: 9px 13px;
+	border: var(--line) solid var(--ink);
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.2;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	border-radius: var(--radius);
+	transition:
+		background-color 140ms ease,
+		color 140ms ease,
+		border-color 140ms ease,
+		transform 120ms ease;
+}
+
+.btn:hover {
+	background: var(--ink);
+	color: var(--paper);
+}
+
+.btn:active {
+	transform: translateY(1px);
+}
+
+.btn:disabled {
+	cursor: not-allowed;
+	opacity: 0.38;
+	transform: none;
+}
+
+.btn--ink {
+	background: var(--ink);
+	color: var(--paper);
+}
+
+.btn--ink:hover {
+	background: transparent;
+	color: var(--ink);
+}
+
+.btn--red {
+	background: var(--red);
+	border-color: var(--red);
+	color: var(--on-signal);
+}
+
+.btn--red:hover {
+	background: var(--ink);
+	border-color: var(--ink);
+	color: var(--paper);
+}
+
+.btn--ghost {
+	border-color: transparent;
+	background: transparent;
+}
+
+.btn--ghost:hover {
+	border-color: var(--ink);
+	background: transparent;
+	color: var(--ink);
+}
+
+.btn--danger {
+	border-color: var(--red);
+	color: var(--red);
+	background: transparent;
+}
+
+.btn--danger:hover {
+	background: var(--red);
+	color: var(--on-signal);
+}
+
+.btn--sm {
+	min-height: 32px;
+	padding: 6px 9px;
+	font-size: 10px;
+}
+
+.btn--lg {
+	min-height: 48px;
+	padding: 12px 18px;
+	font-size: 12px;
+}
+
+.btn--block {
+	width: 100%;
+}
+
+.icon-btn {
+	display: inline-grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	border: var(--line) solid var(--ink);
+	background: var(--paper);
+	color: var(--ink);
+	transition:
+		background-color 140ms ease,
+		color 140ms ease;
+}
+
+.icon-btn:hover {
+	background: var(--ink);
+	color: var(--paper);
+}
+
+.icon-btn--plain {
+	border-color: transparent;
+}
+
+.icon-btn--plain:hover {
+	background: var(--paper-2);
+	color: var(--ink);
+}
+
+.link {
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+}
+
+.link:hover {
+	text-decoration-color: var(--red);
+	text-decoration-thickness: 2px;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.field__label {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+	font-family: var(--mono);
+	font-size: 10px;
+	font-weight: 500;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--ink-2);
+}
+
+.field__hint {
+	font-family: var(--sans);
+	font-size: 11px;
+	letter-spacing: 0;
+	text-transform: none;
+	color: var(--ink-3);
+}
+
+.input,
+.select,
+.textarea {
+	width: 100%;
+	min-height: 42px;
+	padding: 9px 11px;
+	border: var(--line) solid var(--ink);
+	border-radius: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-size: 14px;
+	line-height: 1.4;
+	appearance: none;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+	color: var(--ink-3);
+	opacity: 1;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+	outline: 2px solid var(--red);
+	outline-offset: 1px;
+}
+
+.input--mono {
+	font-family: var(--mono);
+	font-size: 12px;
+}
+
+.input--title {
+	border-color: transparent;
+	background: transparent;
+	padding: 4px 4px;
+	font-family: var(--display);
+	font-size: clamp(26px, 4vw, 38px);
+	line-height: 1.05;
+}
+
+.input--title:hover {
+	border-color: var(--rule);
+}
+
+.textarea {
+	min-height: 110px;
+	resize: vertical;
+	font-size: 14px;
+}
+
+.select {
+	cursor: pointer;
+	background-image:
+		linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+		linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+	background-position:
+		calc(100% - 16px) 50%,
+		calc(100% - 11px) 50%;
+	background-size:
+		5px 5px,
+		5px 5px;
+	background-repeat: no-repeat;
+	padding-right: 34px;
+}
+
+.check {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	font-size: 13px;
+	line-height: 1.4;
+	cursor: pointer;
+}
+
+.check input {
+	appearance: none;
+	width: 16px;
+	height: 16px;
+	flex: 0 0 auto;
+	margin: 1px 0 0;
+	border: var(--line) solid var(--ink);
+	background: var(--paper);
+	display: grid;
+	place-items: center;
+}
+
+.check input::after {
+	content: '';
+	width: 8px;
+	height: 8px;
+	background: var(--red);
+	transform: scale(0);
+	transition: transform 110ms ease;
+}
+
+.check input:checked::after {
+	transform: scale(1);
+}
+
+.check input:focus-visible {
+	outline: 2px solid var(--red);
+	outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Small compositions
+--------------------------------------------------------------------------- */
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.scroll-x {
+	display: flex;
+	overflow-x: auto;
+	overscroll-behavior-inline: contain;
+	scrollbar-width: none;
+}
+
+.scroll-x::-webkit-scrollbar {
+	display: none;
+}
+
+.divider {
+	height: 1px;
+	background: var(--rule);
+	border: 0;
+}
+
+.muted {
+	color: var(--ink-2);
+}
+
+.red {
+	color: var(--red);
+}
+
+.lead {
+	font-size: 16px;
+	line-height: 1.55;
+	color: var(--ink-2);
+}
+
+.status-word {
+	font-family: var(--mono);
+	font-size: 9px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+
+   The vocabulary is paper and ink: pages rise into place, a logged chapter
+   lands like a stamp, and the folio digit turns over the way a counter does.
+   Everything here is decorative — the reduced-motion block below removes it.
+--------------------------------------------------------------------------- */
+
+@keyframes yomi-rise {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes yomi-rise-soft {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* A stamp being pressed: arrives larger and slightly rotated, settles flat. */
+@keyframes yomi-stamp {
+	0% {
+		opacity: 0;
+		transform: scale(1.4) rotate(-6deg);
+	}
+	55% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1) rotate(0deg);
+	}
+}
+
+/* A folio digit turning over. */
+@keyframes yomi-flip {
+	0% {
+		opacity: 0;
+		transform: translateY(-0.3em) scale(0.94);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* The ring of ink that spreads out from the +1 button. */
+@keyframes yomi-ink {
+	0% {
+		opacity: 0.85;
+		transform: scale(0.7);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(1.7);
+	}
+}
+
+@keyframes yomi-bar {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
+	}
+}
+
+@keyframes yomi-sweep {
+	from {
+		transform: translateY(-100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+/* A square turning on its axis, like a stamp handle while the post is in flight. */
+@keyframes yomi-spin {
+	to {
+		transform: rotate(90deg);
+	}
+}
+
+@keyframes yomi-fade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes yomi-toast {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Shared entrance helpers used by more than one screen. */
+.view-enter {
+	/* `backwards`, not `both`: a filled transform would turn this view into the
+	   containing block for fixed dialogs, pushing them off a phone screen. */
+	animation: yomi-rise-soft 240ms cubic-bezier(0.2, 0.9, 0.25, 1) backwards;
+}
+
+.stamp-in {
+	animation: yomi-stamp 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Reduced motion keeps the feedback but removes the travel: everything becomes
+   a 120ms settle, loops run once, and scrolling jumps instead of gliding. */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 120ms !important;
+		animation-delay: 0ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 120ms !important;
+	}
+}

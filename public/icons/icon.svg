@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Yomi">
+	<rect width="512" height="512" fill="#EDEDE4"/>
+	<circle cx="256" cy="256" r="153.6" fill="none" stroke="#141411" stroke-width="38.4"/>
+	<polyline points="233,171 310,256 233,341" fill="none" stroke="#EE3B1F" stroke-width="56" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg>

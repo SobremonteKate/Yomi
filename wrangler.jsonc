@@ -1,0 +1,22 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "yomi",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-08-01",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		"not_found_handling": "single-page-application",
+		"run_worker_first": ["/api/*"]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "yomi",
+			"database_id": "275124a2-4b61-4007-9f34-4f5bb0c3b99a"
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
+}
