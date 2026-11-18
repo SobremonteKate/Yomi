@@ -4,10 +4,13 @@ name: Encrypted D1 backup
 # workflow artifact. Do not commit exports to a public repository: they contain
 # titles, URLs, notes and reading history.
 #
-# Repository secrets:
+# Repository configuration (Settings -> Secrets and variables -> Actions):
 #   YOMI_ENDPOINT       https://<worker>.<you>.workers.dev/api
-#   YOMI_TOKEN          the Worker's SYNC_TOKEN
-#   BACKUP_PASSPHRASE  a long, unique passphrase for the encrypted artifact
+#                       A repository variable is fine here; a secret also works.
+#   YOMI_TOKEN          the Worker's SYNC_TOKEN. Must be a SECRET, never a
+#                       variable: this repository is public and variables are
+#                       readable.
+#   BACKUP_PASSPHRASE   a long, unique passphrase for the encrypted artifact
 #
 # Artifacts from a public repository are publicly downloadable, so the
 # passphrase is what protects the backup. Keep it in a password manager.
@@ -28,22 +31,60 @@ jobs:
 
       - name: Fetch export
         env:
-          YOMI_ENDPOINT: ${{ secrets.YOMI_ENDPOINT }}
+          YOMI_ENDPOINT: ${{ vars.YOMI_ENDPOINT || secrets.YOMI_ENDPOINT }}
           YOMI_TOKEN: ${{ secrets.YOMI_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${YOMI_ENDPOINT:-}" ] || [ -z "${YOMI_TOKEN:-}" ]; then
-            echo "YOMI_ENDPOINT and YOMI_TOKEN secrets are required." >&2
+          missing=0
+          if [ -z "${YOMI_ENDPOINT:-}" ]; then
+            echo "::error::YOMI_ENDPOINT is empty. Add it under Settings -> Secrets and variables -> Actions, e.g. https://<worker>.<you>.workers.dev/api"
+            missing=1
+          fi
+          if [ -z "${YOMI_TOKEN:-}" ]; then
+            echo "::error::YOMI_TOKEN is empty. Add it as a repository SECRET (a variable would expose the token; this repository is public)."
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
             exit 1
           fi
+
+          # Accept either the bare Worker URL or the .../api form; the export
+          # lives at <endpoint>/api/export.
+          endpoint="${YOMI_ENDPOINT%/}"
+          endpoint="${endpoint%/api}/api"
           mkdir -p "${RUNNER_TEMP}/yomi-backup"
-          stamp="$(date -u +%F)"
-          curl --fail --silent --show-error \
+          out="${RUNNER_TEMP}/yomi-backup/yomi-$(date -u +%F).json"
+
+          status="$(curl --silent --show-error \
             --header "Authorization: Bearer ${YOMI_TOKEN}" \
-            "${YOMI_ENDPOINT%/}/export" \
-            --output "${RUNNER_TEMP}/yomi-backup/yomi-${stamp}.json"
+            --output "$out" --write-out '%{http_code}' \
+            "${endpoint}/export")" || status=000
+          case "$status" in
+            200)
+              echo "Fetched ${endpoint}/export"
+              ;;
+            000)
+              echo "::error::Could not reach ${endpoint}/export. Check YOMI_ENDPOINT."
+              exit 1
+              ;;
+            401 | 403)
+              echo "::error::${endpoint}/export returned HTTP ${status}. YOMI_TOKEN is not a valid Worker token."
+              exit 1
+              ;;
+            404)
+              echo "::error::${endpoint}/export returned 404. YOMI_ENDPOINT must be the Worker URL that serves /api."
+              exit 1
+              ;;
+            *)
+              echo "::error::${endpoint}/export returned HTTP ${status}."
+              head -c 300 "$out" || true
+              echo
+              exit 1
+              ;;
+          esac
+
           # A malformed export must fail the job rather than be uploaded.
-          node -e "const d=JSON.parse(require('node:fs').readFileSync('${RUNNER_TEMP}/yomi-backup/yomi-${stamp}.json','utf8')); if(!d.ok||!Array.isArray(d.series)) process.exit(1); console.log(d.series.length+' series, '+d.events.length+' chapters');"
+          node -e "const d=JSON.parse(require('node:fs').readFileSync(process.argv[1],'utf8')); if(!d.ok||!Array.isArray(d.series)||!Array.isArray(d.events)) process.exit(1); console.log(d.series.length+' series, '+d.events.length+' chapters');" "$out"
 
       - name: Encrypt export
         env:
@@ -51,7 +92,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${BACKUP_PASSPHRASE:-}" ]; then
-            echo "BACKUP_PASSPHRASE is required; refusing to upload a private export unencrypted." >&2
+            echo "::error::BACKUP_PASSPHRASE is required; refusing to upload a private export unencrypted."
             exit 1
           fi
           file="$(find "${RUNNER_TEMP}/yomi-backup" -name '*.json' -print -quit)"
